@@ -20,7 +20,9 @@ module.exports = async (d) => {
 
   let parsedOptions;
   try {
-    parsedOptions = options ? JSON.parse(options) : {};
+    // CORREÇÃO: Remover quebras de linha e espaços extras antes de fazer parse
+    const cleanedOptions = options ? options.replace(/\n/g, '').replace(/\s+/g, ' ').trim() : '{}';
+    parsedOptions = cleanedOptions ? JSON.parse(cleanedOptions) : {};
   } catch (err) {
     return d.aoiError.fnError(d, "custom", {}, "Invalid JSON in options: " + err.message);
   }
@@ -37,7 +39,7 @@ module.exports = async (d) => {
       defaultMemberPermissions: appPermissions.includes(undefined) ? null : appPermissions,
       contexts: appContext,
       integrationTypes: appIntegrationType,
-      options: parsedOptions.options || []
+      options: Array.isArray(parsedOptions) ? parsedOptions : (parsedOptions.options || [])
     },
     guildID: guild?.id
   };
